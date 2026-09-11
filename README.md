@@ -1,0 +1,22 @@
+# skills
+
+Claude Code skills I use. Each directory is one skill: a `SKILL.md` with YAML frontmatter, plus any reference files it loads on demand.
+
+## Skills
+
+| Skill | What it does |
+|---|---|
+| [`ux-survey`](ux-survey/) | Writes short post-launch UX surveys as Google Forms build sheets, and pushes back when a survey is the wrong instrument. Built on Nielsen Norman Group's question-writing rules, Judd Antin's research-value framing, and Bob Moesta's four forces. |
+
+## Install
+
+Clone anywhere and symlink the skills you want into `~/.claude/skills/`:
+
+```sh
+git clone https://github.com/dangutierrez/skills.git ~/repos/skills
+ln -s ~/repos/skills/ux-survey ~/.claude/skills/ux-survey
+```
+
+Claude Code picks them up on the next session. Invoke with `/ux-survey`, or let Claude route to one from the description in its frontmatter.
+
+Per-project skills go in `.claude/skills/` inside the repo instead.
