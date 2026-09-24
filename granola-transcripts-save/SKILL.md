@@ -126,10 +126,69 @@ keep `- ` bullets and indentation, drop `**` bold markers, and decode HTML entit
 If a meeting has nothing to save (a calendar placeholder with no recording or notes), skip it
 and list it in the report rather than writing an empty file.
 
-For batches larger than about 10 meetings, work in chronological order and write each file as
-soon as its data arrives, so a failure partway through keeps what's done. For very large
-batches, split the list across parallel subagents, giving each one a fixed list of IDs and
-filenames.
+Work in chronological order and write each file as soon as its data arrives, so a failure
+partway through keeps what's done.
+
+### Rate limiting
+
+Granola's connector rate-limits hard and the cooldown is long. In testing, six subagents calling
+`get_meetings` in parallel hit "Rate limit exceeded. Please slow down requests." after about
+seven calls, single-ID calls were still refused minutes later, and the server then returned
+502s for a while. So:
+
+- **One caller only.** Never split Granola calls across parallel subagents or parallel tool
+  calls. If you delegate, give one subagent the whole list.
+- **Batch and pace.** `get_meetings` takes up to 10 IDs, so use full batches. Transcripts come
+  one meeting per call. Wait 20 seconds between any two Granola calls (`sleep 20` in Bash; if
+  the harness blocks a foreground sleep, run it in the background and continue when it
+  finishes). `list_meetings` counts too.
+- **Back off on errors.** On "Rate limit exceeded" or a 5xx such as "Error 502: Bad gateway",
+  wait 2 minutes, then 4, then 8 before retrying the same call. Don't retry faster, and don't
+  break the batch into single IDs: every call counts against the limit.
+- **Stop cleanly.** If the third backoff also fails, stop calling Granola. Keep the files
+  already written and list the IDs still missing in the report. The next run picks them up,
+  because Step 3 skips everything already saved.
+
+Small, frequent runs avoid most of this. A weekly run is usually 10 to 20 meetings, which fits
+in two `get_meetings` calls.
+
+## Weekly auto-run (macOS)
+
+`run-weekly.sh` in this folder runs the skill headlessly with `claude -p`, asking for the last
+8 days (a day of overlap so evening and weekend meetings aren't missed) and a fixed tool
+allowlist. If Granola is unreachable or meetings are left unsaved, it retries 30 and 60 minutes
+later. Duplicate or late runs are harmless because of Step 3.
+
+To schedule it for Fridays at 17:00 with launchd:
+
+1. Edit the variables at the top of `run-weekly.sh` and run `chmod +x run-weekly.sh`.
+2. Save this as `~/Library/LaunchAgents/local.granola-transcripts-save.plist`, with the script's
+   absolute path filled in:
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+   <plist version="1.0">
+   <dict>
+     <key>Label</key><string>local.granola-transcripts-save</string>
+     <key>ProgramArguments</key>
+     <array><string>/bin/zsh</string><string>-l</string><string>/ABSOLUTE/PATH/run-weekly.sh</string></array>
+     <key>StartCalendarInterval</key>
+     <dict>
+       <key>Weekday</key><integer>5</integer>
+       <key>Hour</key><integer>17</integer>
+       <key>Minute</key><integer>0</integer>
+     </dict>
+   </dict>
+   </plist>
+   ```
+
+3. Load it: `launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/local.granola-transcripts-save.plist`.
+   Pause it with `launchctl bootout gui/$(id -u)/local.granola-transcripts-save`.
+
+launchd runs it only while the Mac is awake and you're logged in; a missed slot runs at the
+next wake. Check `claude mcp list` first: the Granola connector must show as connected for
+headless runs.
 
 ## Step 5: Report
 
