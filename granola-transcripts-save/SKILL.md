@@ -155,11 +155,11 @@ in two `get_meetings` calls.
 ## Weekly auto-run (macOS)
 
 `run-weekly.sh` in this folder runs the skill headlessly with `claude -p`, asking for the last
-8 days (a day of overlap so evening and weekend meetings aren't missed) and a fixed tool
+8 days (a day of overlap so no meeting between runs is missed) and a fixed tool
 allowlist. If Granola is unreachable or meetings are left unsaved, it retries 30 and 60 minutes
 later. Duplicate or late runs are harmless because of Step 3.
 
-To schedule it for Fridays at 17:00 with launchd:
+To schedule it for Fridays at 09:00 local time with launchd:
 
 1. Edit the variables at the top of `run-weekly.sh` and run `chmod +x run-weekly.sh`.
 2. Save this as `~/Library/LaunchAgents/local.granola-transcripts-save.plist`, with the script's
@@ -176,7 +176,7 @@ To schedule it for Fridays at 17:00 with launchd:
      <key>StartCalendarInterval</key>
      <dict>
        <key>Weekday</key><integer>5</integer>
-       <key>Hour</key><integer>17</integer>
+       <key>Hour</key><integer>9</integer>
        <key>Minute</key><integer>0</integer>
      </dict>
    </dict>
