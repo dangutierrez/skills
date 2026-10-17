@@ -6,6 +6,7 @@ Claude Code skills I use. Each directory is one skill: a `SKILL.md` with YAML fr
 
 | Skill | What it does |
 |---|---|
+| [`design-critique`](design-critique/) | Critiques any interface (screens, modals, buttons, menus, dashboards, sites, games) through three lenses: systems, material and composition, by default after Katie Dill, Peter Tarka and Zhenya Rynzhuk. Findings are counted and ranked rather than vague. Then it turns the crit into layout and skin options in an interactive lab, reads back the picks and notes the owner saves, and codifies the winner as a design system. |
 | [`granola-transcripts-save`](granola-transcripts-save/) | Saves Granola meetings to a local folder as plain-text files named by date, one per meeting, and skips ones already saved. Writes verbatim transcripts on paid Granola plans and falls back to the AI summary plus your notes on the free plan, since the connector withholds transcripts there. |
 | [`release-notes`](release-notes/) | Writes customer-facing release notes from a ticket and its merged PR. Sources facts from both, orders them for a reader rather than a reviewer, and runs a caveat checklist (backfill, rollout latency, deferred scope) plus an accuracy-trap list that catches notes which are true but misleading. |
 | [`ux-survey`](ux-survey/) | Writes short post-launch UX surveys as Google Forms build sheets, and pushes back when a survey is the wrong instrument. Built on Nielsen Norman Group's question-writing rules, Judd Antin's research-value framing, and Bob Moesta's four forces. |
