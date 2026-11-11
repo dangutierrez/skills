@@ -63,6 +63,8 @@ problems remain.
 
 ## Final
 
+> Publish: public
+>
 > **Search now reads topics, tags, difficulty, credentials, and formats**
 >
 > Users can find items by the attributes your team already curates. Asking for
